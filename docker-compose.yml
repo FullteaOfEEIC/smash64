@@ -1,0 +1,14 @@
+version: '3'
+services:
+  N64:
+    build: .
+    image: frt/smash
+    container_name: smash
+    ports:
+      - 8083:8888
+    volumes:
+      - ./src:/mnt
+      - ./rom:/rom
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
