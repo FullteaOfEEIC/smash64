@@ -74,7 +74,6 @@ RUN pip install\
  jupyter\
  tensorflow-gpu==2.4.0\
  opencv-python\
- pyautogui\
  python-xlib\
  Flask
 
@@ -84,6 +83,7 @@ RUN tar -xzf mupen64plus-bundle-linux64-2.5.9.tar.gz
 WORKDIR /mupen64plus-bundle-linux64-2.5.9
 RUN ./install.sh
 COPY rom/* /rom/
+COPY [ "savedata/smash.sra", "/root/.local/share/mupen64plus/save/Super Smash Bros. (U) [!].sra" ]
 
 #install libjson
 WORKDIR /
