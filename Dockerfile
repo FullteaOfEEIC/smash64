@@ -57,6 +57,9 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y\
  xvfb\
  scrot\
  libjson-c-dev
+COPY --from=libjsonc2 /var/cache/apt/archives/*.deb /tmp/
+RUN apt install /tmp/*.deb
+
 
 #install python
 RUN git clone https://github.com/pyenv/pyenv.git ~/.pyenv && cd ~/.pyenv/plugins/python-build && ./install.sh && /usr/local/bin/python-build -v 3.7.4 /usr/local/bin/python && rm -rf ~/.pyenv
@@ -84,16 +87,6 @@ WORKDIR /mupen64plus-bundle-linux64-2.5.9
 RUN ./install.sh
 COPY rom/* /rom/
 COPY [ "savedata/smash.sra", "/root/.local/share/mupen64plus/save/Super Smash Bros. (U) [!].sra" ]
-
-#install libjson
-WORKDIR /
-RUN git clone https://github.com/json-c/json-c.git
-WORKDIR /json-c-build
-RUN cmake ../json-c
-RUN make && make test && make install
-
-COPY --from=libjsonc2 /var/cache/apt/archives/*.deb /tmp/
-RUN apt install /tmp/*.deb
 
 COPY --from=inputbot /mupen64plus-input-bot/mupen64plus-input-bot.so /usr/local/lib/mupen64plus/
 

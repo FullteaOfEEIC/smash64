@@ -8,6 +8,6 @@ services:
       - 18083:8888
     volumes:
       - ./src:/mnt
-    #runtime: nvidia
+    runtime: nvidia
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
