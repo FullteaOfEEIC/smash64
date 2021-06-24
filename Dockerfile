@@ -1,3 +1,7 @@
+#libjson-c2
+FROM ubuntu:xenial-20170915 AS libjsonc2
+RUN apt-get update && apt-get -d -y install libjson-c2
+
 #build inputbot
 FROM ubuntu:xenial-20170915 AS inputbot
 RUN apt-get update && apt-get install -y\
@@ -17,15 +21,14 @@ RUN apt-get update && apt-get install -y\
  git
 
 RUN git clone https://github.com/mupen64plus/mupen64plus-core
-RUN git clone https://github.com/kevinhughes27/mupen64plus-input-bot
+RUN git clone https://github.com/FullteaOfEEIC/mupen64plus-input-bot
 WORKDIR /mupen64plus-input-bot
 RUN make all && make install
 
 #main image
 FROM nvidia/cuda:11.0.3-cudnn8-runtime-ubuntu20.04
 
-RUN apt-get update
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y\
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y\
  python-opengl\
  xvfb\
  ffmpeg\
@@ -46,11 +49,14 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y\
  uuid-dev\
  libffi-dev\
  libdb-dev\
+ tk-dev\
  mercurial\
  libpng-dev\
  freetype2-demos\
  libmupen64plus2\
- xvfb
+ xvfb\
+ scrot\
+ libjson-c-dev
 
 #install python
 RUN git clone https://github.com/pyenv/pyenv.git ~/.pyenv && cd ~/.pyenv/plugins/python-build && ./install.sh && /usr/local/bin/python-build -v 3.7.4 /usr/local/bin/python && rm -rf ~/.pyenv
@@ -68,15 +74,16 @@ RUN pip install\
  jupyter\
  tensorflow-gpu==2.4.0\
  opencv-python\
- PyYAML\
- termcolor\
- mss
+ pyautogui\
+ python-xlib\
+ Flask
 
 #install mupen64plus
 RUN wget https://github.com/mupen64plus/mupen64plus-core/releases/download/2.5.9/mupen64plus-bundle-linux64-2.5.9.tar.gz
 RUN tar -xzf mupen64plus-bundle-linux64-2.5.9.tar.gz
 WORKDIR /mupen64plus-bundle-linux64-2.5.9
 RUN ./install.sh
+COPY rom/* /rom/
 
 #install libjson
 WORKDIR /
@@ -85,11 +92,16 @@ WORKDIR /json-c-build
 RUN cmake ../json-c
 RUN make && make test && make install
 
-COPY --from=inputbot /mupen64plus-input-bot/mupen64plus-input-bot.so /usr/local/lib/mupen64plus/
+COPY --from=libjsonc2 /var/cache/apt/archives/*.deb /tmp/
+RUN apt install /tmp/*.deb
 
+COPY --from=inputbot /mupen64plus-input-bot/mupen64plus-input-bot.so /usr/local/lib/mupen64plus/
 
 #setup jupyter
 RUN mkdir -p /root/.jupyter && echo "c.NotebookApp.ip = '0.0.0.0'" >> /root/.jupyter/jupyter_notebook_config.py
 RUN echo c.NotebookApp.open_browser = False >> /root/.jupyter/jupyter_notebook_config.py
 WORKDIR /mnt
-CMD jupyter notebook --allow-root --NotebookApp.token=''
+ENV DISPLAY :1
+COPY startup.sh /startup.sh
+RUN chmod 744 /startup.sh
+CMD /startup.sh
