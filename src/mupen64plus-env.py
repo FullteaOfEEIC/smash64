@@ -3,7 +3,6 @@ from gym import spaces
 
 import subprocess
 import threading
-import pyautogui
 from flask import Flask, jsonify
 import numpy as np
 import time
@@ -174,10 +173,10 @@ class Mupen64PlusEnv(gym.Env):
 if __name__ == '__main__':
     from tqdm import tqdm
     env = Mupen64PlusEnv(player1=False)
+    import cv2
     for i in tqdm(range(3000)):
         observation, reward, done, info = env._step({})
         
         if i%10 == 0:
-            import cv2
             cv2.imwrite("iamge{0}.png".format(str(i).zfill(4)),observation)
             

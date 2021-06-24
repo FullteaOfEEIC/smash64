@@ -69,13 +69,13 @@ RUN pip install\
  gym\
  h5py\
  Pillow\
- gym[atari]\
  gym-notebook-wrapper\
  jupyter\
  tensorflow-gpu==2.4.0\
  opencv-python\
  python-xlib\
- Flask
+ Flask\
+ tqdm
 
 #install mupen64plus
 RUN wget https://github.com/mupen64plus/mupen64plus-core/releases/download/2.5.9/mupen64plus-bundle-linux64-2.5.9.tar.gz
