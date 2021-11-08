@@ -8,6 +8,7 @@ import numpy as np
 import time
 import logging
 from PIL import ImageGrab
+import timeout_decorator
 
 class Mupen64PlusEnv(gym.Env):
 
@@ -65,6 +66,9 @@ class Mupen64PlusEnv(gym.Env):
                             "U_DPAD": 0,
                             "D_DPAD": 0
                         }
+                        "palyer2": {
+                            ...
+                        }
                     }
 
         output
@@ -94,6 +98,7 @@ class Mupen64PlusEnv(gym.Env):
         info = {}
         return observation, reward, done, info
 
+    @timeout_decorator(3)
     def _act(self, action):
         assert set(action.keys()) == {"player1",
                                       "player2", "player3", "player4"}
